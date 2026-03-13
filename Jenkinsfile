@@ -87,7 +87,7 @@ pipeline {
                 anyOf {
                     branch 'development'
                     branch 'staging'
-                    branch 'production'
+                    branch 'main'
                 }
             }
             steps {
@@ -121,7 +121,7 @@ pipeline {
                 anyOf {
                     branch 'development'
                     branch 'staging'
-                    branch 'production'
+                    branch 'main'
                 }
             }
             steps {
@@ -155,8 +155,8 @@ pipeline {
 // Helper function to get environment based on branch
 def getEnvironment() {
     switch(env.BRANCH_NAME) {
-        case 'production':
-            return 'production'
+        case 'main':
+            return 'main'
         case 'staging':
             return 'staging'
         case 'development':
@@ -169,7 +169,7 @@ def getEnvironment() {
 // Helper function to get deploy host based on branch
 def getDeployHost() {
     switch(env.BRANCH_NAME) {
-        case 'production':
+        case 'main':
             return 'prod.toko-kopi-maru.com'
         case 'staging':
             return 'staging.toko-kopi-maru.com'

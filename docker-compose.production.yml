@@ -2,17 +2,17 @@ version: "3.8"
 
 services:
   app:
-    image: ${IMAGE_TAG:-toko-kopi-maru:production-latest}
+    image: ${IMAGE_TAG:-toko-kopi-maru:main-latest}
     container_name: toko-kopi-maru-prod
     restart: always
     ports:
       - "3002:3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=main
       - DATABASE_URL=${DATABASE_URL}
       - NEXT_PUBLIC_API_URL=https://toko-kopi-maru.com
     env_file:
-      - .env.production
+      - .env.main
     networks:
       - toko-kopi-network
     healthcheck:
