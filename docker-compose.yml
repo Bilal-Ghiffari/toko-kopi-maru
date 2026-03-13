@@ -1,0 +1,51 @@
+services:
+  postgres:
+    container_name: postgres-db-kasir-digital
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: kasir_digital
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    container_name: toko-kopi-maru-app # nama container untuk layanan aplikasi
+    image: toko-kopi-maru:latest # nama image untuk layanan aplikasi
+    build:
+      context: . # direktori build adalah direktori saat ini
+      dockerfile: Dockerfile
+      cache_from: # untuk mempercepat build dengan cache dari image sebelumnya
+        - toko-kopi-maru:latest
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      # Override DATABASE_URL untuk Docker (gunakan 'postgres' sebagai host)
+      DATABASE_URL: "postgresql://postgres:secret@postgres:5432/kasir_digital?schema=public"
+      # OPENROUTER_API_KEY diambil dari .env file
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// CATEGORY
+// ============================================
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  icon        String? // emoji atau icon name
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================
+// PRODUCT
+// ============================================
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  description String? // Penting untuk AI search!
+  price       Float
+  cost        Float? // Harga modal (optional)
+  stock       Int     @default(0)
+  minStock    Int     @default(5) // Threshold warning
+  sku         String  @unique
+  barcode     String?
+  imageUrl    String?
+  isActive    Boolean @default(true)
+
+  // Relations
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  transactionItems TransactionItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes untuk performa search
+  @@index([name])
+  @@index([sku])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+// ============================================
+// TRANSACTION
+// ============================================
+model Transaction {
+  id            String @id @default(cuid())
+  invoiceNumber String @unique // INV-20241222-001
+
+  // Amounts
+  subtotal        Float
+  discountAmount  Float @default(0)
+  discountPercent Float @default(0)
+  taxAmount       Float @default(0)
+  taxPercent      Float @default(10) // Default 10% PPN
+  total           Float
+
+  // Payment
+  paymentMethod String // cash, card, qris, transfer
+  amountPaid    Float
+  changeAmount  Float  @default(0)
+
+  // Status
+  status String  @default("completed") // completed, voided, pending
+  notes  String?
+
+  // Staff (optional, untuk tracking)
+  cashierName String?
+
+  // Relations
+  items TransactionItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([status])
+  @@index([paymentMethod])
+  @@index([invoiceNumber])
+}
+
+// ============================================
+// TRANSACTION ITEM
+// ============================================
+model TransactionItem {
+  id String @id @default(cuid())
+
+  quantity       Int
+  unitPrice      Float // Harga saat transaksi (bisa beda dari current price)
+  subtotal       Float
+  discountAmount Float @default(0)
+
+  // Snapshot product info (untuk historical record)
+  productName String
+  productSku  String
+
+  // Relations
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([transactionId])
+}

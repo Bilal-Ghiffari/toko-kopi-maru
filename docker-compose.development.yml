@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  app:
+    image: ${IMAGE_TAG:-toko-kopi-maru:development-latest}
+    container_name: toko-kopi-maru-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_API_URL=http://dev.toko-kopi-maru.com
+    env_file:
+      - .env.development
+    networks:
+      - toko-kopi-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  db:
+    image: postgres:15-alpine
+    container_name: toko-kopi-db-dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=toko_kopi_dev
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - toko-kopi-network
+
+networks:
+  toko-kopi-network:
+    driver: bridge
+
+volumes:
+  postgres_dev_data:

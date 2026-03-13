@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  app:
+    image: ${IMAGE_TAG:-toko-kopi-maru:staging-latest}
+    container_name: toko-kopi-maru-staging
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=staging
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_API_URL=https://staging.toko-kopi-maru.com
+    env_file:
+      - .env.staging
+    networks:
+      - toko-kopi-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+  db:
+    image: postgres:15-alpine
+    container_name: toko-kopi-db-staging
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=toko_kopi_staging
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - toko-kopi-network
+
+networks:
+  toko-kopi-network:
+    driver: bridge
+
+volumes:
+  postgres_staging_data:

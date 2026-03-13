@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+  app:
+    image: ${IMAGE_TAG:-toko-kopi-maru:production-latest}
+    container_name: toko-kopi-maru-prod
+    restart: always
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_API_URL=https://toko-kopi-maru.com
+    env_file:
+      - .env.production
+    networks:
+      - toko-kopi-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "1"
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  db:
+    image: postgres:15-alpine
+    container_name: toko-kopi-db-prod
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=toko_kopi_prod
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    ports:
+      - "5434:5432"
+    networks:
+      - toko-kopi-network
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+networks:
+  toko-kopi-network:
+    driver: bridge
+
+volumes:
+  postgres_prod_data:

@@ -1,4 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Toko Kopi Maru ☕
+
+Point of Sale (POS) system dengan AI Assistant untuk toko kopi. Built with Next.js, TypeScript, Prisma, dan OpenRouter AI.
+
+## Features
+
+- 🛒 Point of Sale System
+- 🤖 AI Assistant untuk rekomendasi dan bantuan
+- 📊 Analytics Dashboard
+- 🗣️ Voice Commands
+- 💳 Payment Processing
+- 🔍 Product Search
+- 📱 Responsive Design
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **AI**: OpenRouter (GPT-4, Claude)
+- **Styling**: Tailwind CSS
+- **Components**: shadcn/ui
+- **Deployment**: Docker + Jenkins CI/CD
+
+## 🚀 CI/CD Automation
+
+Project ini menggunakan Jenkins untuk automated deployment dengan support untuk multiple environments:
+
+- **Development** - Auto-deploy dari branch `development`
+- **Staging** - Auto-deploy dari branch `staging`
+- **Production** - Auto-deploy dari branch `production`
+
+### Quick Setup
+
+```bash
+# Setup Jenkins dan CI/CD
+# Lihat dokumentasi lengkap di:
+```
+
+📖 **[Jenkins Setup Guide](./JENKINS_SETUP.md)**  
+⚡ **[Quick Reference](./JENKINS_QUICK_REFERENCE.md)**
+
+### Deployment Scripts
+
+```bash
+# Manual deployment
+./deploy.sh development    # Deploy ke dev
+./deploy.sh staging        # Deploy ke staging
+./deploy.sh production     # Deploy ke production
+
+# Check status
+./check-status.sh
+
+# Docker cleanup
+./cleanup-docker.sh
+```
 
 ## Getting Started
 
