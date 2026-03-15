@@ -3,9 +3,10 @@ pipeline {
     
     environment {
         DOCKER_IMAGE = 'toko-kopi-maru'
-        DOCKER_REGISTRY = 'your-registry.com' // Update this
+        DOCKER_REGISTRY = 'bilalalffari'
         NODE_ENV = getEnvironment()
         DEPLOY_HOST = getDeployHost()
+        PATH = "/Users/bilalalghiffari/.nvm/versions/node/v24.5.0/bin:/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
     }
     
     stages {
