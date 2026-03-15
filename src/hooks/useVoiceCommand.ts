@@ -182,7 +182,9 @@ export function useVoiceCommand(options: UseVoiceCommandOptions = {}) {
 
     // Jika browser tidak support, set flag dan show error
     if (!SpeechRecognition) {
+      // eslint-disable-next-line react-compiler/react-compiler
       setIsSupported(false);
+      // eslint-disable-next-line react-compiler/react-compiler
       setError(
         "Browser tidak mendukung Voice Commands. Gunakan Chrome, Edge, atau Safari.",
       );
@@ -190,6 +192,7 @@ export function useVoiceCommand(options: UseVoiceCommandOptions = {}) {
     }
 
     // Browser support! Set flag ke true
+    // eslint-disable-next-line react-compiler/react-compiler
     setIsSupported(true);
 
     // ---- Create Recognition Instance ----
@@ -394,6 +397,48 @@ export function useVoiceCommand(options: UseVoiceCommandOptions = {}) {
    *
    * @throws Error jika gagal start
    */
+  /**
+   * stopListening: Stop voice recognition
+   *
+   * Flow:
+   * 1. Stop recognition instance
+   * 2. Clear auto-stop timeout
+   * 3. State akan di-update via onend event handler
+   */
+  const stopListening = useCallback(() => {
+    // Check jika recognition instance exists
+    if (!recognitionRef.current) return;
+
+    try {
+      // ---- Stop Recognition ----
+      // Ini akan trigger onend event handler
+      recognitionRef.current.stop();
+
+      console.log("[Voice] Stopping recognition..."); // Debug log
+
+      // ---- Clear Auto-Stop Timeout ----
+      if (autoStopTimeoutRef.current) {
+        clearTimeout(autoStopTimeoutRef.current);
+        autoStopTimeoutRef.current = null;
+      }
+    } catch (err) {
+      // ---- Error Handling ----
+      // Ignore error jika recognition sudah stopped
+      console.error("[Voice] Stop error (ignored):", err);
+    }
+  }, []); // No dependencies = stable function
+
+  /**
+   * startListening: Start voice recognition
+   *
+   * Flow:
+   * 1. Validate preconditions (supported, not already listening)
+   * 2. Reset state (transcript, error)
+   * 3. Start recognition
+   * 4. Setup auto-stop timeout
+   *
+   * @throws Error jika gagal start
+   */
   const startListening = useCallback(() => {
     // ---- Validation Guards ----
     // Check jika recognition instance exists
@@ -432,38 +477,7 @@ export function useVoiceCommand(options: UseVoiceCommandOptions = {}) {
       console.error("[Voice] Start error:", err);
       setError("Gagal memulai voice recognition.");
     }
-  }, [isSupported, isListening, autoStop]); // Dependencies untuk useCallback
-
-  /**
-   * stopListening: Stop voice recognition
-   *
-   * Flow:
-   * 1. Stop recognition instance
-   * 2. Clear auto-stop timeout
-   * 3. State akan di-update via onend event handler
-   */
-  const stopListening = useCallback(() => {
-    // Check jika recognition instance exists
-    if (!recognitionRef.current) return;
-
-    try {
-      // ---- Stop Recognition ----
-      // Ini akan trigger onend event handler
-      recognitionRef.current.stop();
-
-      console.log("[Voice] Stopping recognition..."); // Debug log
-
-      // ---- Clear Auto-Stop Timeout ----
-      if (autoStopTimeoutRef.current) {
-        clearTimeout(autoStopTimeoutRef.current);
-        autoStopTimeoutRef.current = null;
-      }
-    } catch (err) {
-      // ---- Error Handling ----
-      // Ignore error jika recognition sudah stopped
-      console.error("[Voice] Stop error (ignored):", err);
-    }
-  }, []); // No dependencies = stable function
+  }, [isSupported, isListening, autoStop, stopListening]); // Dependencies untuk useCallback
 
   /**
    * toggleListening: Toggle voice recognition on/off

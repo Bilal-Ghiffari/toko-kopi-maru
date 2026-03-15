@@ -70,12 +70,12 @@ export function VoiceCommandButton({
       {/* Audio waveform saat listening */}
       {isListening && (
         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-0.5">
-          {[...Array(5)].map((_, i) => (
+          {[4, 8, 6, 10, 5].map((height, i) => (
             <div
               key={i}
               className="w-0.5 bg-primary rounded-full animate-wave"
               style={{
-                height: `${Math.random() * 8 + 4}px`,
+                height: `${height}px`,
                 animationDelay: `${i * 0.1}s`,
               }}
             />
