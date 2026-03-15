@@ -19,6 +19,7 @@ import { z } from "zod/v4";
 
 // Import instance Prisma Client untuk akses database
 import { prisma } from "../db";
+import type { Prisma } from "../../../generated/prisma";
 
 // Import fungsi-fungsi utility untuk formatting data
 import { formatCurrency } from "../utils";
@@ -47,7 +48,7 @@ export const searchProductsTool = tool(
     try {
       // Inisialisasi object whereClause untuk filter query Prisma
       // whereClause ini akan di-build secara dinamis berdasarkan parameter yang diterima
-      const whereClause: any = {
+      const whereClause: Prisma.ProductWhereInput = {
         isActive: true, // Filter 1: Hanya produk yang aktif (tidak dihapus/dinonaktifkan)
         stock: { gt: 0 }, // Filter 2: Hanya produk dengan stok > 0 (masih tersedia)
       };
@@ -336,7 +337,7 @@ export const searchProductsTool = tool(
  */
 export const checkStockTool = tool(
   // Fungsi async yang menerima parameter checkLowStock dan productName
-  async ({ checkLowStock, productName }) => {
+  async ({ checkLowStock }) => {
     try {
       // Cek apakah user ingin melihat semua produk dengan stok menipis
       if (checkLowStock) {

@@ -15,7 +15,6 @@ import {
   Loader2,
   MessageSquare,
   Package,
-  Receipt,
   RefreshCcw,
 } from "lucide-react";
 import Image from "next/image";
@@ -151,7 +150,7 @@ export default function Kasir() {
   // PAYMENT SUCCESS HANDLER
   // ============================================
   const handlePaymentSuccess = React.useCallback(
-    async (transactionData: any) => {
+    async (transactionData: Record<string, unknown>) => {
       // Clear cart
       clearCart();
 

@@ -114,14 +114,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Build Prisma query
-    const whereClause: any = {
-      AND: [{ isActive: true }, { stock: { gt: 0 } }],
-    };
+    type WhereCondition = Record<string, unknown>;
+    const andConditions: WhereCondition[] = [
+      { isActive: true },
+      { stock: { gt: 0 } },
+    ];
 
     if (aiParsed) {
       // Search terms
       if (aiParsed.searchTerms.length > 0) {
-        whereClause.AND.push({
+        andConditions.push({
           OR: aiParsed.searchTerms.flatMap((term) => [
             { name: { contains: term, mode: "insensitive" } },
             { description: { contains: term, mode: "insensitive" } },
@@ -131,7 +133,7 @@ export async function POST(req: NextRequest) {
 
       // Category filter
       if (aiParsed.category) {
-        whereClause.AND.push({
+        andConditions.push({
           category: {
             name: { equals: aiParsed.category, mode: "insensitive" },
           },
@@ -140,15 +142,15 @@ export async function POST(req: NextRequest) {
 
       // Price range
       if (aiParsed.priceRange.min !== null) {
-        whereClause.AND.push({ price: { gte: aiParsed.priceRange.min } });
+        andConditions.push({ price: { gte: aiParsed.priceRange.min } });
       }
       if (aiParsed.priceRange.max !== null) {
-        whereClause.AND.push({ price: { lte: aiParsed.priceRange.max } });
+        andConditions.push({ price: { lte: aiParsed.priceRange.max } });
       }
 
       // Attribute-based search (search in description)
       if (aiParsed.attributes) {
-        const attrFilters: any[] = [];
+        const attrFilters: WhereCondition[] = [];
 
         if (aiParsed.attributes.isSweet === true) {
           attrFilters.push({
@@ -193,7 +195,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (attrFilters.length > 0) {
-          whereClause.AND.push(...attrFilters);
+          andConditions.push(...attrFilters);
         }
       }
     } else {
@@ -205,14 +207,14 @@ export async function POST(req: NextRequest) {
         .filter((k: string) => k.length > 1);
 
       if (keywords.length > 0) {
-        whereClause.AND.push({
+        andConditions.push({
           OR: keywords.flatMap((keyword: string) => [
             { name: { contains: keyword, mode: "insensitive" } },
             { description: { contains: keyword, mode: "insensitive" } },
           ]),
         });
       } else {
-        whereClause.AND.push({
+        andConditions.push({
           OR: [
             { name: { contains: query, mode: "insensitive" } },
             { description: { contains: query, mode: "insensitive" } },
@@ -221,8 +223,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const whereClause = { AND: andConditions };
+
     // Determine sort order
-    let orderBy: any = { name: "asc" };
+    let orderBy: Record<string, string> = { name: "asc" };
     if (aiParsed?.sortBy) {
       switch (aiParsed.sortBy) {
         case "price_asc":

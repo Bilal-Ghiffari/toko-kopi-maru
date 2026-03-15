@@ -22,22 +22,24 @@ export async function GET() {
       provider: providerInfo,
       aiResponse: response, // Hasil dari LLM
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("AI Test Error:", error);
-    
+
     // Get provider info untuk error reporting
     const providerInfo = getProviderInfo();
-    
+    const errMsg = error instanceof Error ? error.message : String(error);
+
     return NextResponse.json(
       {
         status: "error",
-        message: error.message,
+        message: errMsg,
         provider: providerInfo,
-        hint: providerInfo.provider === "grok" 
-          ? "Pastikan OPENROUTER_API_KEY sudah di-set di .env.local. Dapatkan di: https://openrouter.ai/settings/keys"
-          : "Pastikan OPENAI_API_KEY sudah di-set di .env.local",
+        hint:
+          providerInfo.provider === "grok"
+            ? "Pastikan OPENROUTER_API_KEY sudah di-set di .env.local. Dapatkan di: https://openrouter.ai/settings/keys"
+            : "Pastikan OPENAI_API_KEY sudah di-set di .env.local",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -35,7 +35,6 @@ const ProductCard = memo(function ProductCard({
   onAdd,
   inCartQuantity,
 }: ProductCardProps) {
-  const isLowStock = product.stock <= 5; // Cek apakah stok rendah
   const isOutOfStock = product.stock === 0; // Cek apakah stok habis
   const remainingStock = product.stock - inCartQuantity; // Hitung sisa stok setelah dikurangi di cart
   return (

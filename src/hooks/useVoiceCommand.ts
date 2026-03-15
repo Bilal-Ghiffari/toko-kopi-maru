@@ -134,13 +134,37 @@ export function useVoiceCommand(options: UseVoiceCommandOptions = {}) {
    * isSupported: Flag boolean browser support Web Speech API
    * false jika browser tidak support (perlu fallback atau notification)
    */
-  const [isSupported, setIsSupported] = useState(false);
+  const [isSupported] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !!(
+      (window as Window & typeof globalThis & Record<string, unknown>)
+        .SpeechRecognition ||
+      (window as Window & typeof globalThis & Record<string, unknown>)
+        .webkitSpeechRecognition ||
+      (window as Window & typeof globalThis & Record<string, unknown>)
+        .mozSpeechRecognition ||
+      (window as Window & typeof globalThis & Record<string, unknown>)
+        .msSpeechRecognition
+    );
+  });
 
   /**
    * error: Error message string jika ada kesalahan
    * null = tidak ada error, string = ada error dengan pesan
    */
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    const w = window as Window & typeof globalThis & Record<string, unknown>;
+    const hasSpeechRecognition = !!(
+      w.SpeechRecognition ||
+      w.webkitSpeechRecognition ||
+      w.mozSpeechRecognition ||
+      w.msSpeechRecognition
+    );
+    return hasSpeechRecognition
+      ? null
+      : "Browser tidak mendukung Voice Commands. Gunakan Chrome, Edge, atau Safari.";
+  });
 
   // ============================================
   // REFS (untuk persist values across renders)
@@ -151,7 +175,18 @@ export function useVoiceCommand(options: UseVoiceCommandOptions = {}) {
    * Menggunakan ref agar tidak recreate instance setiap render
    * Type 'any' karena SpeechRecognition belum standard di TypeScript
    */
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<{
+    lang: string;
+    continuous: boolean;
+    interimResults: boolean;
+    maxAlternatives: number;
+    onstart: (() => void) | null;
+    onresult: ((event: SpeechRecognitionEvent) => void) | null;
+    onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+    onend: (() => void) | null;
+    start: () => void;
+    stop: () => void;
+  } | null>(null);
 
   /**
    * autoStopTimeoutRef: Menyimpan timeout ID untuk auto-stop
@@ -174,26 +209,32 @@ export function useVoiceCommand(options: UseVoiceCommandOptions = {}) {
 
     // ---- Browser Compatibility Check ----
     // Coba berbagai vendor prefixes untuk SpeechRecognition API
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || // Standard (Chrome 33+)
-      (window as any).webkitSpeechRecognition || // Webkit/Safari
-      (window as any).mozSpeechRecognition || // Firefox (experimental)
-      (window as any).msSpeechRecognition; // Edge/IE (legacy)
+    type SpeechRecognitionConstructor = new () => {
+      lang: string;
+      continuous: boolean;
+      interimResults: boolean;
+      maxAlternatives: number;
+      onstart: (() => void) | null;
+      onresult: ((event: SpeechRecognitionEvent) => void) | null;
+      onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+      onend: (() => void) | null;
+      start: () => void;
+      stop: () => void;
+    };
+    const w = window as Window & typeof globalThis & Record<string, unknown>;
+    const SpeechRecognition = (
+      w.SpeechRecognition ||
+      w.webkitSpeechRecognition ||
+      w.mozSpeechRecognition ||
+      w.msSpeechRecognition
+    ) as SpeechRecognitionConstructor | undefined;
 
     // Jika browser tidak support, set flag dan show error
     if (!SpeechRecognition) {
-      // eslint-disable-next-line react-compiler/react-compiler
-      setIsSupported(false);
-      // eslint-disable-next-line react-compiler/react-compiler
-      setError(
-        "Browser tidak mendukung Voice Commands. Gunakan Chrome, Edge, atau Safari.",
-      );
-      return; // Stop execution, tidak bisa continue
+      return; // Stop execution, error already set in initial state
     }
 
-    // Browser support! Set flag ke true
-    // eslint-disable-next-line react-compiler/react-compiler
-    setIsSupported(true);
+    // Browser support — isSupported already initialized via lazy useState
 
     // ---- Create Recognition Instance ----
     // Buat instance baru dari SpeechRecognition dengan config
@@ -361,7 +402,7 @@ export function useVoiceCommand(options: UseVoiceCommandOptions = {}) {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (e) {
+        } catch {
           // Ignore error jika sudah stopped
         }
       }

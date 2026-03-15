@@ -85,7 +85,16 @@ export async function POST(req: NextRequest) {
     // ============================================
     // VALIDASI: Check semua productId valid & stock tersedia
     // ============================================
-    const productIds = items.map((item: any) => item.productId);
+    interface TransactionItem {
+      productId: string;
+      productName: string;
+      productSku: string;
+      quantity: number;
+      unitPrice: number;
+      subtotal: number;
+      discountAmount?: number;
+    }
+    const productIds = items.map((item: TransactionItem) => item.productId);
 
     // Query semua produk yang dibutuhkan
     const existingProducts = await prisma.product.findMany({
@@ -120,7 +129,7 @@ export async function POST(req: NextRequest) {
 
     // 2. Check produk yang tidak aktif
     const inactiveProducts = items
-      .map((item: any) => ({
+      .map((item: TransactionItem) => ({
         ...item,
         product: productMap.get(item.productId),
       }))
@@ -194,7 +203,7 @@ export async function POST(req: NextRequest) {
           notes,
           // Nested create: Membuat semua TransactionItem sekaligus
           items: {
-            create: items.map((item: any) => ({
+            create: items.map((item: TransactionItem) => ({
               productId: item.productId, // ID produk untuk relasi
               productName: item.productName, // Snapshot nama produk saat transaksi
               productSku: item.productSku, // Snapshot SKU produk

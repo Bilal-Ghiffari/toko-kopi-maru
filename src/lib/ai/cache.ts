@@ -8,7 +8,7 @@
 // Map untuk menyimpan cache hasil pencarian
 // Key: query string (lowercase)
 // Value: { result: hasil pencarian, timestamp: waktu cache dibuat }
-const searchCache = new Map<string, { result: any; timestamp: number }>();
+const searchCache = new Map<string, { result: unknown; timestamp: number }>();
 
 // Time To Live (TTL) untuk cache dalam milidetik
 // 5 menit = 5 * 60 detik * 1000 milidetik
@@ -40,7 +40,7 @@ export function getCachedSearch(query: string) {
  * @param query - Query pencarian dari user
  * @param result - Hasil pencarian yang akan di-cache
  */
-export function setCachedSearch(query: string, result: any) {
+export function setCachedSearch(query: string, result: unknown) {
   // Simpan hasil ke cache dengan key query (lowercase) dan timestamp saat ini
   searchCache.set(query.toLowerCase(), { result, timestamp: Date.now() });
 

@@ -37,7 +37,7 @@ interface PaymentDialogProps {
   subTotal: number; // Subtotal sebelum pajak
   tax: number; // Jumlah pajak
   total: number; // Total akhir yang harus dibayar
-  onSuccess: (transaction: any) => void; // Callback saat pembayaran berhasil
+  onSuccess: (transaction: Record<string, unknown>) => void; // Callback saat pembayaran berhasil
 }
 
 // Type untuk metode pembayaran yang tersedia

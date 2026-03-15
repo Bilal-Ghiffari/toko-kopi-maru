@@ -55,7 +55,7 @@ interface AIAssistantProps {
  */
 export default function AIAssistant({
   className, // Custom styling dari parent
-  onProductSelect, // Callback untuk product selection
+  // onProductSelect reserved for future use
 }: AIAssistantProps) {
   // ============================================
   // STATE MANAGEMENT
@@ -362,7 +362,7 @@ Silakan tanya apa saja! 😊`,
                 parsed.error || "Error tidak diketahui dari AI Assistant",
               );
             }
-          } catch (error) {
+          } catch {
             // Skip invalid JSON (malformed chunks)
           }
         }
@@ -611,7 +611,7 @@ Silakan tanya apa saja! 😊`,
       <ScrollArea
         ref={scrollAreaRef} // Ref untuk programmatic scrolling
         className="flex-1 overflow-auto" // flex-1 = take remaining space
-        onScrollCapture={handleScroll as any} // Detect scroll position
+        onScrollCapture={handleScroll as React.UIEventHandler<HTMLDivElement>} // Detect scroll position
       >
         <div className="p-4 space-y-4">
           {" "}

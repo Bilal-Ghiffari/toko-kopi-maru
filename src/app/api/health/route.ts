@@ -17,7 +17,7 @@ export async function GET() {
         transactions: transactionCount,
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       {
         status: "error",

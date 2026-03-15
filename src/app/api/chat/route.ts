@@ -268,7 +268,7 @@ ${recentTransactions
     // 5. PREPARE MESSAGES FOR AGENT
     // ============================================
     // Agent expects messages dalam format standar
-    const allMessages = messages.map((msg: any) => ({
+    const allMessages = messages.map((msg: { role: string; content: string }) => ({
       role: msg.role,
       content: msg.content,
     }));
@@ -319,7 +319,7 @@ ${recentTransactions
               return true;
             }
             return false;
-          } catch (error) {
+          } catch {
             // Catch any enqueue errors (stream closed, etc)
             console.log("[Stream] Enqueue failed - stream likely closed");
             return false;
@@ -422,9 +422,9 @@ ${recentTransactions
                   // Handle content array (some models return array)
                   token = chunk.content
                     .filter(
-                      (c: any) => typeof c === "string" || c?.type === "text",
+                      (c: unknown) => typeof c === "string" || (c !== null && typeof c === "object" && (c as { type?: string }).type === "text"),
                     )
-                    .map((c: any) => (typeof c === "string" ? c : c.text))
+                    .map((c: unknown) => (typeof c === "string" ? c : (c as { text: string }).text))
                     .join("");
                 }
 
@@ -522,7 +522,7 @@ ${recentTransactions
             if (controller.desiredSize !== null) {
               controller.close();
             }
-          } catch (error) {
+          } catch {
             // Stream sudah closed, ignore error
             console.log("[Stream] Controller already closed");
           }

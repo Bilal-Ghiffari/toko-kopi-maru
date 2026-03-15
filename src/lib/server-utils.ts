@@ -34,8 +34,8 @@ export async function getTopProducts(
 // Helper function untuk format sales summary
 export function formatSalesSummary(
   periodLabel: string,
-  salesData: any,
-  topProducts: any[]
+  salesData: { _sum: { total?: number | null; discountAmount?: number | null }; _count?: number; _avg: { total?: number | null } },
+  topProducts: { rank: number; name: string; quantity: number; revenue: number }[]
 ) {
   const totalRevenue = salesData._sum.total || 0;
   const totalTransactions = salesData._count || 0;

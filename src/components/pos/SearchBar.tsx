@@ -4,7 +4,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Search, Sparkles, X } from "lucide-react";
-import { set } from "zod/v4";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -71,7 +70,7 @@ export function SearchBar({ onResults, onLoading, className }: SearchBarProps) {
         setAiParsed(data.aiParsed);
 
         setResultCount(data.products.length);
-      } catch (error) {
+      } catch {
         onResults([]);
         setAiParsed(null);
         setResultCount(0);
