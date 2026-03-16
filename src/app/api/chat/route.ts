@@ -17,6 +17,8 @@ import type { NextRequest } from "next/server";
 // ============================================
 // Menggunakan Node.js runtime untuk akses penuh ke database dan file system
 export const runtime = "nodejs";
+// Paksa route ini sebagai dynamic — mencegah Next.js eksekusi koneksi DB saat build time
+export const dynamic = "force-dynamic";
 
 // ============================================
 // VALIDATION CONFIGURATION

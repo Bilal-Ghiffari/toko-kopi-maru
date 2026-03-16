@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 
 // Konfigurasi runtime untuk menggunakan Node.js (bukan Edge runtime)
 export const runtime = "nodejs";
+// Paksa route ini sebagai dynamic — mencegah Next.js eksekusi koneksi DB saat build time
+export const dynamic = "force-dynamic";
 
 /**
  * API Endpoint: GET /api/analytics/quick

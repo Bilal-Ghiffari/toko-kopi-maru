@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { z } from "zod/v4";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { SEARCH_PARSER_PROMPT } from "@/lib/ai/prompts";

@@ -53,11 +53,13 @@ pipeline {
         
         stage('Build') {
             steps {
-                script {
-                    echo "Building application for ${env.NODE_ENV}..."
-                    sh """
-                        npm run build
-                    """
+                withCredentials([
+                    string(credentialsId: "database-url-${env.BRANCH_NAME}", variable: 'DATABASE_URL')
+                ]) {
+                    script {
+                        echo "Building application for ${env.NODE_ENV}..."
+                        sh 'npm run build'
+                    }
                 }
             }
         }
