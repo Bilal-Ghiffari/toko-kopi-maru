@@ -54,7 +54,8 @@ pipeline {
         stage('Build') {
             steps {
                 withCredentials([
-                    string(credentialsId: "database-url-${env.BRANCH_NAME}", variable: 'DATABASE_URL')
+                    string(credentialsId: "database-url-${env.BRANCH_NAME}", variable: 'DATABASE_URL'),
+                    string(credentialsId: 'openrouter-api-key', variable: 'OPENROUTER_API_KEY')
                 ]) {
                     script {
                         echo "Building application for ${env.NODE_ENV}..."

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { llm, getProviderInfo } from "@/lib/ai/langchain";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     // Get provider info untuk debugging

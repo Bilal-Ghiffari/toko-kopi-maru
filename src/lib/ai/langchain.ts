@@ -42,10 +42,8 @@ const OPENROUTER_CONFIG = {
  * @throws Error jika OPENROUTER_API_KEY tidak ditemukan
  */
 function createChatModel(config: ModelConfig): ChatOpenAI {
-  // Validasi: Pastikan API key tersedia
-  if (!OPENROUTER_CONFIG.apiKey) {
-    throw new Error("❌ OPENROUTER_API_KEY tidak ditemukan! Set di .env.local");
-  }
+  // Validasi dijalankan saat request time (bukan module load time)
+  // agar tidak break build process ketika env var belum tersedia
 
   // Buat instance ChatOpenAI dengan konfigurasi OpenRouter
   return new ChatOpenAI({
